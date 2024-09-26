@@ -30,6 +30,11 @@ namespace AINewsAPI.Controllers
                     _logger.LogWarning("No news items available");
                     return NotFound("No news items available.");
                 }
+                foreach (var item in news)
+                {
+                    _logger.LogInformation("News item: Title: {Title}, FormattedPublishedDate: {FormattedPublishedDate}", 
+                        item.Title, item.FormattedPublishedDate);
+                }
                 _logger.LogInformation("Successfully retrieved {Count} news items", news.Count());
                 return Ok(news);
             }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Card, CardContent, Grid, CircularProgress } from '@mui/material';
+import { Container, Typography, Card, CardContent, Grid, CircularProgress, Button } from '@mui/material';
 import axios from 'axios';
+import EmailShareModal from './components/EmailShareModal';
 
 interface NewsItem {
   title: string;
@@ -12,6 +13,8 @@ interface NewsItem {
 const App: React.FC = () => {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [selectedNewsItem, setSelectedNewsItem] = useState<NewsItem | null>(null);
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -27,6 +30,11 @@ const App: React.FC = () => {
 
     fetchNews();
   }, []);
+
+  const handleShareClick = (item: NewsItem) => {
+    setSelectedNewsItem(item);
+    setShareModalOpen(true);
+  };
 
   return (
     <Container maxWidth="md">
@@ -55,11 +63,26 @@ const App: React.FC = () => {
                       Read more
                     </a>
                   </Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleShareClick(item)}
+                    sx={{ mt: 2 }}
+                  >
+                    Share via Email
+                  </Button>
                 </CardContent>
               </Card>
             </Grid>
           ))}
         </Grid>
+      )}
+      {selectedNewsItem && (
+        <EmailShareModal
+          open={shareModalOpen}
+          onClose={() => setShareModalOpen(false)}
+          newsItem={selectedNewsItem}
+        />
       )}
     </Container>
   );

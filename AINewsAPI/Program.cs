@@ -12,6 +12,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+// Explicitly set URLs to listen on
+builder.WebHost.UseUrls("http://localhost:5000", "https://localhost:5001");
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

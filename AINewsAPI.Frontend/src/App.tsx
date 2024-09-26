@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Card, CardContent, Grid, CircularProgress, Button } from '@mui/material';
+import { Container, Typography, Card, CardContent, Grid, CircularProgress, Button, IconButton } from '@mui/material';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import axios from 'axios';
 import EmailShareModal from './components/EmailShareModal';
 
 interface NewsItem {
+  id: string;
   title: string;
   description: string;
   url: string;
@@ -15,6 +18,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [selectedNewsItem, setSelectedNewsItem] = useState<NewsItem | null>(null);
+  const [favorites, setFavorites] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -29,11 +33,28 @@ const App: React.FC = () => {
     };
 
     fetchNews();
+    loadFavorites();
   }, []);
+
+  const loadFavorites = () => {
+    const storedFavorites = localStorage.getItem('favorites');
+    if (storedFavorites) {
+      setFavorites(JSON.parse(storedFavorites));
+    }
+  };
 
   const handleShareClick = (item: NewsItem) => {
     setSelectedNewsItem(item);
     setShareModalOpen(true);
+  };
+
+  const handleFavoriteToggle = (itemId: string) => {
+    const newFavorites = favorites.includes(itemId)
+      ? favorites.filter(id => id !== itemId)
+      : [...favorites, itemId];
+    
+    setFavorites(newFavorites);
+    localStorage.setItem('favorites', JSON.stringify(newFavorites));
   };
 
   return (
@@ -45,8 +66,8 @@ const App: React.FC = () => {
         <CircularProgress />
       ) : (
         <Grid container spacing={3}>
-          {news.map((item, index) => (
-            <Grid item xs={12} key={index}>
+          {news.map((item) => (
+            <Grid item xs={12} key={item.id}>
               <Card>
                 <CardContent>
                   <Typography variant="h5" component="h2">
@@ -67,10 +88,17 @@ const App: React.FC = () => {
                     variant="contained"
                     color="primary"
                     onClick={() => handleShareClick(item)}
-                    sx={{ mt: 2 }}
+                    sx={{ mt: 2, mr: 1 }}
                   >
                     Share via Email
                   </Button>
+                  <IconButton
+                    color="primary"
+                    onClick={() => handleFavoriteToggle(item.id)}
+                    aria-label={favorites.includes(item.id) ? "Remove from favorites" : "Add to favorites"}
+                  >
+                    {favorites.includes(item.id) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                  </IconButton>
                 </CardContent>
               </Card>
             </Grid>

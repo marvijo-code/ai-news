@@ -2,6 +2,8 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material'
+import '@mui/material/styles'
+import '@mui/icons-material'
 
 const theme = createTheme({
   palette: {

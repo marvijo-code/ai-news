@@ -45,15 +45,14 @@ namespace AINewsAPI.Infrastructure.Repositories
                 _logger.LogInformation("Found {Count} article nodes", articleNodes.Count);
 
                 var newsItems = new List<NewsItem>();
-
                 var uniqueUrls = new HashSet<string>();
+
                 foreach (var articleNode in articleNodes)
                 {
                     var newsItem = ExtractNewsItem(articleNode);
-                    if (newsItem != null && !uniqueUrls.Contains(newsItem.Url))
+                    if (newsItem != null && uniqueUrls.Add(newsItem.Url))
                     {
                         newsItems.Add(newsItem);
-                        uniqueUrls.Add(newsItem.Url);
                         if (newsItems.Count >= 10) break; // Limit to 10 news items
                     }
                 }

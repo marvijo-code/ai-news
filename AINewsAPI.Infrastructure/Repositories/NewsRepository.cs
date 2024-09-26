@@ -45,15 +45,24 @@ namespace AINewsAPI.Infrastructure.Repositories
                 _logger.LogInformation("Found {Count} article nodes", articleNodes.Count);
 
                 var newsItems = new List<NewsItem>();
-                var uniqueUrls = new HashSet<string>();
+                var uniqueUrls = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
                 foreach (var articleNode in articleNodes)
                 {
                     var newsItem = ExtractNewsItem(articleNode);
-                    if (newsItem != null && uniqueUrls.Add(newsItem.Url))
+                    if (newsItem != null)
                     {
-                        newsItems.Add(newsItem);
-                        if (newsItems.Count >= 10) break; // Limit to 10 news items
+                        var normalizedUrl = NormalizeUrl(newsItem.Url);
+                        if (uniqueUrls.Add(normalizedUrl))
+                        {
+                            newsItems.Add(newsItem);
+                            _logger.LogInformation("Added news item: {Title}, URL: {Url}", newsItem.Title, newsItem.Url);
+                            if (newsItems.Count >= 10) break; // Limit to 10 news items
+                        }
+                        else
+                        {
+                            _logger.LogInformation("Skipped duplicate news item: {Title}, URL: {Url}", newsItem.Title, newsItem.Url);
+                        }
                     }
                 }
 
@@ -63,7 +72,7 @@ namespace AINewsAPI.Infrastructure.Repositories
                     return new List<NewsItem> { CreateDefaultNewsItem() };
                 }
 
-                _logger.LogInformation("Successfully extracted {Count} news items", newsItems.Count);
+                _logger.LogInformation("Successfully extracted {Count} unique news items", newsItems.Count);
                 return newsItems;
             }
             catch (HttpRequestException ex)
@@ -76,6 +85,18 @@ namespace AINewsAPI.Infrastructure.Repositories
                 _logger.LogError(ex, "An unexpected error occurred while fetching news");
                 return new List<NewsItem> { CreateDefaultNewsItem() };
             }
+        }
+
+        private string NormalizeUrl(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+                return string.Empty;
+
+            url = url.Trim().ToLowerInvariant();
+            if (url.EndsWith("/"))
+                url = url.Substring(0, url.Length - 1);
+
+            return url;
         }
 
         private HtmlNodeCollection TryGetArticleNodes(HtmlDocument htmlDocument)

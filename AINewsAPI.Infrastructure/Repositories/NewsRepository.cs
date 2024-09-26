@@ -46,6 +46,7 @@ namespace AINewsAPI.Infrastructure.Repositories
 
                 var newsItems = new List<NewsItem>();
                 var uniqueUrls = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                var uniqueTitles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
                 foreach (var articleNode in articleNodes)
                 {
@@ -53,7 +54,8 @@ namespace AINewsAPI.Infrastructure.Repositories
                     if (newsItem != null)
                     {
                         var normalizedUrl = NormalizeUrl(newsItem.Url);
-                        if (uniqueUrls.Add(normalizedUrl))
+                        var normalizedTitle = newsItem.Title.Trim().ToLowerInvariant();
+                        if (uniqueUrls.Add(normalizedUrl) && uniqueTitles.Add(normalizedTitle))
                         {
                             newsItems.Add(newsItem);
                             _logger.LogInformation("Added news item: {Title}, URL: {Url}", newsItem.Title, newsItem.Url);
@@ -93,8 +95,21 @@ namespace AINewsAPI.Infrastructure.Repositories
                 return string.Empty;
 
             url = url.Trim().ToLowerInvariant();
+            
+            // Remove protocol (http:// or https://)
+            url = url.Replace("https://", "").Replace("http://", "");
+            
+            // Remove 'www.' if present
+            url = url.Replace("www.", "");
+            
+            // Remove trailing slash
             if (url.EndsWith("/"))
                 url = url.Substring(0, url.Length - 1);
+
+            // Remove query parameters
+            int queryIndex = url.IndexOf('?');
+            if (queryIndex != -1)
+                url = url.Substring(0, queryIndex);
 
             return url;
         }

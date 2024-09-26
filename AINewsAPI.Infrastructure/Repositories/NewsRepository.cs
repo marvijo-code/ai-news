@@ -136,7 +136,7 @@ namespace AINewsAPI.Infrastructure.Repositories
             if (!DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var publishedAt))
             {
                 _logger.LogWarning("Failed to parse date: {DateString}", dateString);
-                return null;
+                publishedAt = DateTime.UtcNow; // Use current time as fallback
             }
 
             return new NewsItem

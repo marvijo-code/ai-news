@@ -21,7 +21,8 @@ namespace AINewsAPI.Application.Services
                 Title = n.Title,
                 Description = n.Description,
                 Url = n.Url,
-                PublishedAt = n.PublishedAt
+                PublishedAt = n.PublishedAt,
+                FormattedPublishedDate = n.PublishedAt.ToString("MMMM dd, yyyy")
             });
         }
     }

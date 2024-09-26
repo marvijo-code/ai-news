@@ -6,5 +6,6 @@ namespace AINewsAPI.Application.DTOs
         public string Description { get; set; } = string.Empty;
         public string Url { get; set; } = string.Empty;
         public DateTime PublishedAt { get; set; }
+        public string FormattedPublishedDate { get; set; } = string.Empty;
     }
 }

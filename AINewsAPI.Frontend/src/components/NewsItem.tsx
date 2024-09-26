@@ -6,11 +6,17 @@ interface NewsItemProps {
   url: string;
 }
 
+const decodeHtml = (html: string) => {
+  const txt = document.createElement('textarea');
+  txt.innerHTML = html;
+  return txt.value;
+};
+
 const NewsItem: React.FC<NewsItemProps> = ({ title, description, url }) => {
   return (
     <div className="news-item">
-      <h2>{title}</h2>
-      <p>{description}</p>
+      <h2>{decodeHtml(title)}</h2>
+      <p>{decodeHtml(description)}</p>
       <a href={url} target="_blank" rel="noopener noreferrer">Read more</a>
     </div>
   );

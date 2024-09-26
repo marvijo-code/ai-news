@@ -29,6 +29,11 @@ namespace AINewsAPI.Application.Services
 
         private string FormatPublishedDate(DateTime publishedAt)
         {
+            if (publishedAt == default)
+            {
+                return "Date not available";
+            }
+
             var now = DateTime.UtcNow;
             var difference = now - publishedAt;
 

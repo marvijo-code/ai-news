@@ -155,6 +155,9 @@ namespace AINewsAPI.Infrastructure.Repositories
 
             var publishedAt = ParsePublishedDate(dateString);
 
+            _logger.LogInformation("Extracted news item. Title: {Title}, URL: {Url}, Date string: {DateString}, Parsed date: {ParsedDate}",
+                title, articleUrl, dateString, publishedAt);
+
             return new NewsItem
             {
                 Title = title,

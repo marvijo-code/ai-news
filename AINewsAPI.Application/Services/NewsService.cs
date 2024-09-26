@@ -7,7 +7,6 @@ using AINewsAPI.Application.DTOs;
 using AINewsAPI.Application.Interfaces;
 using AINewsAPI.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging;
 
 namespace AINewsAPI.Application.Services
 {

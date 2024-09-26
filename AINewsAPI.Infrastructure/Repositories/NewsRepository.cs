@@ -156,7 +156,14 @@ namespace AINewsAPI.Infrastructure.Repositories
                 return DateTime.UtcNow;
             }
 
-            if (DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsedDate))
+            // Try parsing with specific format (e.g., "2023-09-26 12:34:56")
+            if (DateTime.TryParseExact(dateString, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsedDate))
+            {
+                return parsedDate.ToUniversalTime();
+            }
+
+            // Try parsing with invariant culture
+            if (DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out parsedDate))
             {
                 return parsedDate.ToUniversalTime();
             }
@@ -167,7 +174,11 @@ namespace AINewsAPI.Infrastructure.Repositories
                 var parts = dateString.Split(' ');
                 if (parts.Length >= 2 && int.TryParse(parts[0], out int value))
                 {
-                    if (dateString.Contains("hour", StringComparison.OrdinalIgnoreCase))
+                    if (dateString.Contains("minute", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return DateTime.UtcNow.AddMinutes(-value);
+                    }
+                    else if (dateString.Contains("hour", StringComparison.OrdinalIgnoreCase))
                     {
                         return DateTime.UtcNow.AddHours(-value);
                     }

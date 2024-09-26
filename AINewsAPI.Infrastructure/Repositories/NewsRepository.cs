@@ -177,18 +177,19 @@ namespace AINewsAPI.Infrastructure.Repositories
                 return DateTime.UtcNow;
             }
 
-            // Try parsing with specific format (e.g., "2023-09-26 12:34:56")
-            if (DateTime.TryParseExact(dateString, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsedDate))
+            // Try parsing with specific formats
+            string[] formats = { "yyyy-MM-dd HH:mm:ss", "yyyy-MM-ddTHH:mm:ssZ", "ddd MMM dd HH:mm:ss +ffff yyyy" };
+            if (DateTime.TryParseExact(dateString, formats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var parsedDate))
             {
                 _logger.LogInformation("Successfully parsed date using specific format: {ParsedDate}", parsedDate);
-                return parsedDate.ToUniversalTime();
+                return parsedDate;
             }
 
             // Try parsing with invariant culture
-            if (DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out parsedDate))
+            if (DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out parsedDate))
             {
                 _logger.LogInformation("Successfully parsed date using invariant culture: {ParsedDate}", parsedDate);
-                return parsedDate.ToUniversalTime();
+                return parsedDate;
             }
 
             // Handle relative time strings

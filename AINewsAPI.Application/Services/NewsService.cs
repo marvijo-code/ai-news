@@ -46,9 +46,9 @@ namespace AINewsAPI.Application.Services
         {
             _logger.LogInformation("Formatting date: {PublishedAt}", publishedAt);
 
-            if (publishedAt == default)
+            if (publishedAt == default || publishedAt == DateTime.MinValue)
             {
-                _logger.LogWarning("Published date is default value");
+                _logger.LogWarning("Published date is default or minimum value");
                 return "Date not available";
             }
 
@@ -57,17 +57,21 @@ namespace AINewsAPI.Application.Services
 
             _logger.LogInformation("Time difference: {Difference}", difference);
 
-            if (difference.TotalMinutes < 60)
+            if (difference.TotalMinutes < 1)
             {
-                return $"{(int)difference.TotalMinutes} minutes ago";
+                return "Just now";
+            }
+            else if (difference.TotalMinutes < 60)
+            {
+                return $"{(int)difference.TotalMinutes} minute{(difference.TotalMinutes < 2 ? "" : "s")} ago";
             }
             else if (difference.TotalHours < 24)
             {
-                return $"{(int)difference.TotalHours} hours ago";
+                return $"{(int)difference.TotalHours} hour{(difference.TotalHours < 2 ? "" : "s")} ago";
             }
             else if (difference.TotalDays < 30)
             {
-                return $"{(int)difference.TotalDays} days ago";
+                return $"{(int)difference.TotalDays} day{(difference.TotalDays < 2 ? "" : "s")} ago";
             }
             else
             {

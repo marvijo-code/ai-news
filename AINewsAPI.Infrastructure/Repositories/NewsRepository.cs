@@ -16,8 +16,8 @@ namespace AINewsAPI.Infrastructure.Repositories
 
         public async Task<IEnumerable<NewsItem>> GetLatestNewsAsync()
         {
-            var url = "https://techcrunch.com/category/artificial-intelligence/";
-            var html = await _httpClient.GetStringAsync(url);
+            var baseUrl = "https://techcrunch.com/category/artificial-intelligence/";
+            var html = await _httpClient.GetStringAsync(baseUrl);
 
             var htmlDocument = new HtmlDocument();
             htmlDocument.LoadHtml(html);
@@ -36,7 +36,7 @@ namespace AINewsAPI.Infrastructure.Repositories
                 {
                     var title = titleNode.InnerText.Trim();
                     var description = descriptionNode.InnerText.Trim();
-                    var url = titleNode.GetAttributeValue("href", "");
+                    var articleUrl = titleNode.GetAttributeValue("href", "");
                     var dateString = dateNode.GetAttributeValue("datetime", "");
 
                     if (DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var publishedAt))
@@ -45,7 +45,7 @@ namespace AINewsAPI.Infrastructure.Repositories
                         {
                             Title = title,
                             Description = description,
-                            Url = url,
+                            Url = articleUrl,
                             PublishedAt = publishedAt.ToUniversalTime()
                         });
                     }

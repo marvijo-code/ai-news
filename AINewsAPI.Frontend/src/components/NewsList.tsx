@@ -6,6 +6,7 @@ interface NewsArticle {
   title: string;
   description: string;
   url: string;
+  publishedAt: string;
 }
 
 const NewsList: React.FC = () => {
@@ -43,6 +44,7 @@ const NewsList: React.FC = () => {
           title={article.title}
           description={article.description}
           url={article.url}
+          publishedAt={article.publishedAt}
         />
       ))}
     </div>

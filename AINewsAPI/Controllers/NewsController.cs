@@ -18,8 +18,20 @@ namespace AINewsAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<NewsItemDto>>> GetLatestNews()
         {
-            var news = await _newsService.GetLatestNewsAsync();
-            return Ok(news);
+            try
+            {
+                var news = await _newsService.GetLatestNewsAsync();
+                if (news == null || !news.Any())
+                {
+                    return NotFound("No news items found.");
+                }
+                return Ok(news);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception here
+                return StatusCode(500, "An error occurred while fetching news items.");
+            }
         }
     }
 }

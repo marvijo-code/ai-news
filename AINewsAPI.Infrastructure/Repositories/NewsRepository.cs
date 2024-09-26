@@ -137,19 +137,60 @@ namespace AINewsAPI.Infrastructure.Repositories
                 return null;
             }
 
-            if (!DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var publishedAt))
-            {
-                _logger.LogWarning("Failed to parse date: {DateString}", dateString);
-                publishedAt = DateTime.UtcNow; // Use current time as fallback
-            }
+            var publishedAt = ParsePublishedDate(dateString);
 
             return new NewsItem
             {
                 Title = title,
                 Description = description,
                 Url = articleUrl,
-                PublishedAt = publishedAt.ToUniversalTime()
+                PublishedAt = publishedAt
             };
+        }
+
+        private DateTime ParsePublishedDate(string dateString)
+        {
+            if (string.IsNullOrWhiteSpace(dateString))
+            {
+                return DateTime.UtcNow;
+            }
+
+            if (DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsedDate))
+            {
+                return parsedDate.ToUniversalTime();
+            }
+
+            // Handle relative time strings
+            if (dateString.Contains("ago", StringComparison.OrdinalIgnoreCase))
+            {
+                var parts = dateString.Split(' ');
+                if (parts.Length >= 2 && int.TryParse(parts[0], out int value))
+                {
+                    if (dateString.Contains("hour", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return DateTime.UtcNow.AddHours(-value);
+                    }
+                    else if (dateString.Contains("day", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return DateTime.UtcNow.AddDays(-value);
+                    }
+                    else if (dateString.Contains("week", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return DateTime.UtcNow.AddDays(-value * 7);
+                    }
+                    else if (dateString.Contains("month", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return DateTime.UtcNow.AddMonths(-value);
+                    }
+                    else if (dateString.Contains("year", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return DateTime.UtcNow.AddYears(-value);
+                    }
+                }
+            }
+
+            _logger.LogWarning("Failed to parse date: {DateString}", dateString);
+            return DateTime.UtcNow; // Use current time as fallback
         }
 
         private NewsItem CreateDefaultNewsItem(string description = "Unable to fetch news at this time. Please try again later.")

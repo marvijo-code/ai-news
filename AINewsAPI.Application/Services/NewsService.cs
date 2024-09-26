@@ -23,8 +23,27 @@ namespace AINewsAPI.Application.Services
                 Description = n.Description,
                 Url = n.Url,
                 PublishedAt = n.PublishedAt,
-                FormattedPublishedDate = n.PublishedAt.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture)
+                FormattedPublishedDate = FormatPublishedDate(n.PublishedAt)
             });
+        }
+
+        private string FormatPublishedDate(DateTime publishedAt)
+        {
+            var now = DateTime.UtcNow;
+            var difference = now - publishedAt;
+
+            if (difference.TotalHours < 24)
+            {
+                return $"{(int)difference.TotalHours} hours ago";
+            }
+            else if (difference.TotalDays < 30)
+            {
+                return $"{(int)difference.TotalDays} days ago";
+            }
+            else
+            {
+                return publishedAt.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture);
+            }
         }
     }
 }

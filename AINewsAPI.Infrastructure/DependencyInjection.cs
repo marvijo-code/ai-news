@@ -9,8 +9,7 @@ namespace AINewsAPI.Infrastructure
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddHttpClient();
-            services.AddScoped<INewsRepository, NewsRepository>();
+            services.AddHttpClient<INewsRepository, NewsRepository>();
             return services;
         }
     }

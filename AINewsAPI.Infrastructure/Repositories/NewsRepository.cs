@@ -1,6 +1,7 @@
 using AINewsAPI.Domain.Entities;
 using AINewsAPI.Domain.Interfaces;
-using System.Text.Json;
+using HtmlAgilityPack;
+using System.Globalization;
 
 namespace AINewsAPI.Infrastructure.Repositories
 {
@@ -15,31 +16,45 @@ namespace AINewsAPI.Infrastructure.Repositories
 
         public async Task<IEnumerable<NewsItem>> GetLatestNewsAsync()
         {
-            var response = await _httpClient.GetAsync("https://newsapi.org/v2/everything?q=AI&from=" + DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd") + "&sortBy=publishedAt&apiKey=YOUR_API_KEY");
-            response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync();
-            var newsResponse = JsonSerializer.Deserialize<NewsApiResponse>(content);
+            var url = "https://techcrunch.com/category/artificial-intelligence/";
+            var html = await _httpClient.GetStringAsync(url);
 
-            return newsResponse?.Articles.Select(a => new NewsItem
+            var htmlDocument = new HtmlDocument();
+            htmlDocument.LoadHtml(html);
+
+            var articleNodes = htmlDocument.DocumentNode.SelectNodes("//div[contains(@class, 'post-block')]");
+
+            var newsItems = new List<NewsItem>();
+
+            foreach (var articleNode in articleNodes)
             {
-                Title = a.Title,
-                Description = a.Description,
-                Url = a.Url,
-                PublishedAt = a.PublishedAt
-            }) ?? Enumerable.Empty<NewsItem>();
+                var titleNode = articleNode.SelectSingleNode(".//h2[@class='post-block__title']/a");
+                var descriptionNode = articleNode.SelectSingleNode(".//div[@class='post-block__content']");
+                var dateNode = articleNode.SelectSingleNode(".//time");
+
+                if (titleNode != null && descriptionNode != null && dateNode != null)
+                {
+                    var title = titleNode.InnerText.Trim();
+                    var description = descriptionNode.InnerText.Trim();
+                    var url = titleNode.GetAttributeValue("href", "");
+                    var dateString = dateNode.GetAttributeValue("datetime", "");
+
+                    if (DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var publishedAt))
+                    {
+                        newsItems.Add(new NewsItem
+                        {
+                            Title = title,
+                            Description = description,
+                            Url = url,
+                            PublishedAt = publishedAt.ToUniversalTime()
+                        });
+                    }
+                }
+
+                if (newsItems.Count >= 10) break; // Limit to 10 news items
+            }
+
+            return newsItems;
         }
-    }
-
-    public class NewsApiResponse
-    {
-        public List<Article> Articles { get; set; } = new List<Article>();
-    }
-
-    public class Article
-    {
-        public string Title { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string Url { get; set; } = string.Empty;
-        public DateTime PublishedAt { get; set; }
     }
 }

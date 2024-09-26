@@ -21,16 +21,19 @@ const formatDate = (dateString: string): string => {
 
   const now = new Date();
   const diffTime = Math.abs(now.getTime() - date.getTime());
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffHours / 24);
 
-  if (diffDays === 0) {
-    return 'Today';
-  } else if (diffDays === 1) {
-    return 'Yesterday';
+  const fullDate = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  if (diffHours < 1) {
+    return `Less than an hour ago (${fullDate})`;
+  } else if (diffHours < 24) {
+    return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago (${fullDate})`;
   } else if (diffDays < 7) {
-    return `${diffDays} days ago`;
+    return `${diffDays} day${diffDays === 1 ? '' : 's'} ago (${fullDate})`;
   } else {
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    return fullDate;
   }
 };
 

@@ -41,7 +41,10 @@ namespace AINewsAPI.Infrastructure.Repositories
                         var articleUrl = titleNode.GetAttributeValue("href", "");
                         var dateString = dateNode.GetAttributeValue("datetime", "");
 
-                        if (DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var publishedAt))
+                        if (DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var publishedAt)
+                            && !string.IsNullOrWhiteSpace(title)
+                            && !string.IsNullOrWhiteSpace(description)
+                            && !string.IsNullOrWhiteSpace(articleUrl))
                         {
                             newsItems.Add(new NewsItem
                             {

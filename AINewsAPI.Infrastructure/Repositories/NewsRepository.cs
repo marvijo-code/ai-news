@@ -119,9 +119,24 @@ namespace AINewsAPI.Infrastructure.Repositories
                            articleNode.SelectSingleNode(".//span[contains(@class, 'date')]") ??
                            articleNode.SelectSingleNode(".//time[contains(@class, 'wp-block-post-date')]");
 
-            if (titleNode == null && descriptionNode == null)
+            if (titleNode == null)
             {
-                _logger.LogWarning("Missing required nodes for article. Article HTML: {ArticleHtml}", articleNode.OuterHtml);
+                _logger.LogWarning("Missing title node for article. Article HTML: {ArticleHtml}", articleNode.OuterHtml);
+            }
+
+            if (descriptionNode == null)
+            {
+                _logger.LogWarning("Missing description node for article. Article HTML: {ArticleHtml}", articleNode.OuterHtml);
+            }
+
+            if (dateNode == null)
+            {
+                _logger.LogWarning("Missing date node for article. Article HTML: {ArticleHtml}", articleNode.OuterHtml);
+            }
+
+            if (titleNode == null && descriptionNode == null && dateNode == null)
+            {
+                _logger.LogWarning("Missing all required nodes for article. Article HTML: {ArticleHtml}", articleNode.OuterHtml);
                 return null;
             }
 
@@ -133,7 +148,7 @@ namespace AINewsAPI.Infrastructure.Repositories
 
             if (string.IsNullOrWhiteSpace(articleUrl))
             {
-                _logger.LogWarning("Invalid article data. Title: {Title}, Description: {Description}, URL: {Url}, Date: {Date}",
+                _logger.LogWarning("Invalid article URL. Title: {Title}, Description: {Description}, URL: {Url}, Date: {Date}",
                     title, description, articleUrl, dateString);
                 return null;
             }

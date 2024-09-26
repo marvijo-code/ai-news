@@ -106,31 +106,32 @@ namespace AINewsAPI.Infrastructure.Repositories
             var titleNode = articleNode.SelectSingleNode(".//h2[contains(@class, 'post-block__title')]/a") ??
                             articleNode.SelectSingleNode(".//h2[contains(@class, 'title')]/a") ??
                             articleNode.SelectSingleNode(".//h3[contains(@class, 'title')]/a") ??
-                            articleNode.SelectSingleNode(".//a[contains(@class, 'post-block__title__link')]");
+                            articleNode.SelectSingleNode(".//a[contains(@class, 'post-block__title__link')]") ??
+                            articleNode.SelectSingleNode(".//h2[contains(@class, 'wp-block-post-title')]/a");
 
             var descriptionNode = articleNode.SelectSingleNode(".//div[contains(@class, 'post-block__content')]") ??
                                   articleNode.SelectSingleNode(".//div[contains(@class, 'excerpt')]") ??
                                   articleNode.SelectSingleNode(".//p[contains(@class, 'excerpt')]") ??
-                                  articleNode.SelectSingleNode(".//div[contains(@class, 'wp-block-post-excerpt')]");
+                                  articleNode.SelectSingleNode(".//div[contains(@class, 'wp-block-post-excerpt')]") ??
+                                  articleNode.SelectSingleNode(".//p[contains(@class, 'wp-block-post-excerpt__excerpt')]");
 
             var dateNode = articleNode.SelectSingleNode(".//time") ??
                            articleNode.SelectSingleNode(".//span[contains(@class, 'date')]") ??
                            articleNode.SelectSingleNode(".//time[contains(@class, 'wp-block-post-date')]");
 
-            if (titleNode == null || descriptionNode == null)
+            if (titleNode == null && descriptionNode == null)
             {
                 _logger.LogWarning("Missing required nodes for article. Article HTML: {ArticleHtml}", articleNode.OuterHtml);
                 return null;
             }
 
-            var title = HtmlEntity.DeEntitize(titleNode.InnerText.Trim());
-            var description = HtmlEntity.DeEntitize(descriptionNode.InnerText.Trim());
-            var articleUrl = titleNode.GetAttributeValue("href", "");
+            var title = titleNode != null ? HtmlEntity.DeEntitize(titleNode.InnerText.Trim()) : "Title not available";
+            var description = descriptionNode != null ? HtmlEntity.DeEntitize(descriptionNode.InnerText.Trim()) : "Description not available";
+            var articleUrl = titleNode?.GetAttributeValue("href", "") ?? "";
             
             var dateString = dateNode?.GetAttributeValue("datetime", "") ?? dateNode?.InnerText.Trim() ?? DateTime.UtcNow.ToString("o");
 
-            if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(description) || 
-                string.IsNullOrWhiteSpace(articleUrl))
+            if (string.IsNullOrWhiteSpace(articleUrl))
             {
                 _logger.LogWarning("Invalid article data. Title: {Title}, Description: {Description}, URL: {Url}, Date: {Date}",
                     title, description, articleUrl, dateString);

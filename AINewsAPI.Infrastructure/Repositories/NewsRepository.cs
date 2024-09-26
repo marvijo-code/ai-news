@@ -169,20 +169,25 @@ namespace AINewsAPI.Infrastructure.Repositories
 
         private DateTime ParsePublishedDate(string dateString)
         {
+            _logger.LogInformation("Attempting to parse date string: {DateString}", dateString);
+
             if (string.IsNullOrWhiteSpace(dateString))
             {
+                _logger.LogWarning("Date string is null or empty. Using current UTC time.");
                 return DateTime.UtcNow;
             }
 
             // Try parsing with specific format (e.g., "2023-09-26 12:34:56")
             if (DateTime.TryParseExact(dateString, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsedDate))
             {
+                _logger.LogInformation("Successfully parsed date using specific format: {ParsedDate}", parsedDate);
                 return parsedDate.ToUniversalTime();
             }
 
             // Try parsing with invariant culture
             if (DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out parsedDate))
             {
+                _logger.LogInformation("Successfully parsed date using invariant culture: {ParsedDate}", parsedDate);
                 return parsedDate.ToUniversalTime();
             }
 
@@ -192,34 +197,37 @@ namespace AINewsAPI.Infrastructure.Repositories
                 var parts = dateString.Split(' ');
                 if (parts.Length >= 2 && int.TryParse(parts[0], out int value))
                 {
+                    DateTime result = DateTime.UtcNow;
                     if (dateString.Contains("minute", StringComparison.OrdinalIgnoreCase))
                     {
-                        return DateTime.UtcNow.AddMinutes(-value);
+                        result = result.AddMinutes(-value);
                     }
                     else if (dateString.Contains("hour", StringComparison.OrdinalIgnoreCase))
                     {
-                        return DateTime.UtcNow.AddHours(-value);
+                        result = result.AddHours(-value);
                     }
                     else if (dateString.Contains("day", StringComparison.OrdinalIgnoreCase))
                     {
-                        return DateTime.UtcNow.AddDays(-value);
+                        result = result.AddDays(-value);
                     }
                     else if (dateString.Contains("week", StringComparison.OrdinalIgnoreCase))
                     {
-                        return DateTime.UtcNow.AddDays(-value * 7);
+                        result = result.AddDays(-value * 7);
                     }
                     else if (dateString.Contains("month", StringComparison.OrdinalIgnoreCase))
                     {
-                        return DateTime.UtcNow.AddMonths(-value);
+                        result = result.AddMonths(-value);
                     }
                     else if (dateString.Contains("year", StringComparison.OrdinalIgnoreCase))
                     {
-                        return DateTime.UtcNow.AddYears(-value);
+                        result = result.AddYears(-value);
                     }
+                    _logger.LogInformation("Successfully parsed relative date: {ParsedDate}", result);
+                    return result;
                 }
             }
 
-            _logger.LogWarning("Failed to parse date: {DateString}", dateString);
+            _logger.LogWarning("Failed to parse date: {DateString}. Using current UTC time.", dateString);
             return DateTime.UtcNow; // Use current time as fallback
         }
 

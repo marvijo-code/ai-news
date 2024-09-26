@@ -37,7 +37,11 @@ namespace AINewsAPI.Application.Services
             var now = DateTime.UtcNow;
             var difference = now - publishedAt;
 
-            if (difference.TotalHours < 24)
+            if (difference.TotalMinutes < 60)
+            {
+                return $"{(int)difference.TotalMinutes} minutes ago";
+            }
+            else if (difference.TotalHours < 24)
             {
                 return $"{(int)difference.TotalHours} hours ago";
             }

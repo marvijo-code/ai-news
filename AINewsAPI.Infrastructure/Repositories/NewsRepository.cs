@@ -34,11 +34,11 @@ namespace AINewsAPI.Infrastructure.Repositories
                 var htmlDocument = new HtmlDocument();
                 htmlDocument.LoadHtml(html);
 
-                var articleNodes = htmlDocument.DocumentNode.SelectNodes("//article[contains(@class, 'post-block')]");
+                var articleNodes = TryGetArticleNodes(htmlDocument);
 
                 if (articleNodes == null || !articleNodes.Any())
                 {
-                    _logger.LogWarning("No article nodes found in the HTML. Content snippet: {HtmlSnippet}", html.Substring(0, Math.Min(500, html.Length)));
+                    _logger.LogWarning("No article nodes found in the HTML. Content snippet: {HtmlSnippet}", html.Substring(0, Math.Min(1000, html.Length)));
                     return new List<NewsItem> { CreateDefaultNewsItem() };
                 }
 
@@ -77,11 +77,42 @@ namespace AINewsAPI.Infrastructure.Repositories
             }
         }
 
+        private HtmlNodeCollection TryGetArticleNodes(HtmlDocument htmlDocument)
+        {
+            var selectors = new[]
+            {
+                "//article[contains(@class, 'post-block')]",
+                "//div[contains(@class, 'post-block')]",
+                "//div[contains(@class, 'article')]",
+                "//div[contains(@class, 'post')]"
+            };
+
+            foreach (var selector in selectors)
+            {
+                var nodes = htmlDocument.DocumentNode.SelectNodes(selector);
+                if (nodes != null && nodes.Any())
+                {
+                    _logger.LogInformation("Found article nodes using selector: {Selector}", selector);
+                    return nodes;
+                }
+            }
+
+            _logger.LogWarning("No article nodes found using any of the predefined selectors.");
+            return null;
+        }
+
         private NewsItem ExtractNewsItem(HtmlNode articleNode)
         {
-            var titleNode = articleNode.SelectSingleNode(".//h2[contains(@class, 'post-block__title')]/a");
-            var descriptionNode = articleNode.SelectSingleNode(".//div[contains(@class, 'post-block__content')]");
-            var dateNode = articleNode.SelectSingleNode(".//time");
+            var titleNode = articleNode.SelectSingleNode(".//h2[contains(@class, 'post-block__title')]/a") ??
+                            articleNode.SelectSingleNode(".//h2[contains(@class, 'title')]/a") ??
+                            articleNode.SelectSingleNode(".//h3[contains(@class, 'title')]/a");
+
+            var descriptionNode = articleNode.SelectSingleNode(".//div[contains(@class, 'post-block__content')]") ??
+                                  articleNode.SelectSingleNode(".//div[contains(@class, 'excerpt')]") ??
+                                  articleNode.SelectSingleNode(".//p[contains(@class, 'excerpt')]");
+
+            var dateNode = articleNode.SelectSingleNode(".//time") ??
+                           articleNode.SelectSingleNode(".//span[contains(@class, 'date')]");
 
             if (titleNode == null || descriptionNode == null || dateNode == null)
             {
@@ -92,7 +123,7 @@ namespace AINewsAPI.Infrastructure.Repositories
             var title = titleNode.InnerText.Trim();
             var description = descriptionNode.InnerText.Trim();
             var articleUrl = titleNode.GetAttributeValue("href", "");
-            var dateString = dateNode.GetAttributeValue("datetime", "");
+            var dateString = dateNode.GetAttributeValue("datetime", "") ?? dateNode.InnerText.Trim();
 
             if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(description) || 
                 string.IsNullOrWhiteSpace(articleUrl) || string.IsNullOrWhiteSpace(dateString))

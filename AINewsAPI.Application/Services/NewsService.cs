@@ -22,7 +22,7 @@ namespace AINewsAPI.Application.Services
                 Description = n.Description,
                 Url = n.Url,
                 PublishedAt = n.PublishedAt,
-                FormattedPublishedDate = n.PublishedAt.ToString("MMMM dd, yyyy")
+                FormattedPublishedDate = n.PublishedAt.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture)
             });
         }
     }

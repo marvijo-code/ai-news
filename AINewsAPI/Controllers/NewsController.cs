@@ -21,10 +21,6 @@ namespace AINewsAPI.Controllers
             try
             {
                 var news = await _newsService.GetLatestNewsAsync();
-                if (news == null || !news.Any())
-                {
-                    return NotFound("No news items found.");
-                }
                 return Ok(news);
             }
             catch (Exception ex)

@@ -57,6 +57,18 @@ namespace AINewsAPI.Infrastructure.Repositories
                 }
             }
 
+            // If no news items were found, add a default item
+            if (!newsItems.Any())
+            {
+                newsItems.Add(new NewsItem
+                {
+                    Title = "No news available",
+                    Description = "Unable to fetch news at this time.",
+                    Url = "https://techcrunch.com/category/artificial-intelligence/",
+                    PublishedAt = DateTime.UtcNow
+                });
+            }
+
             return newsItems;
         }
     }

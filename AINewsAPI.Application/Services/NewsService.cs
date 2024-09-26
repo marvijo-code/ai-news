@@ -75,7 +75,7 @@ namespace AINewsAPI.Application.Services
             }
             else
             {
-                return publishedAt.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture);
+                return publishedAt.ToString("MMMM d, yyyy", CultureInfo.InvariantCulture);
             }
         }
     }

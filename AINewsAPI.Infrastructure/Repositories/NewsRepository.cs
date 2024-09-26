@@ -117,7 +117,8 @@ namespace AINewsAPI.Infrastructure.Repositories
 
             var dateNode = articleNode.SelectSingleNode(".//time") ??
                            articleNode.SelectSingleNode(".//span[contains(@class, 'date')]") ??
-                           articleNode.SelectSingleNode(".//time[contains(@class, 'wp-block-post-date')]");
+                           articleNode.SelectSingleNode(".//time[contains(@class, 'wp-block-post-date')]") ??
+                           articleNode.SelectSingleNode(".//div[contains(@class, 'wp-block-post-date')]");
 
             if (titleNode == null)
             {
@@ -144,7 +145,11 @@ namespace AINewsAPI.Infrastructure.Repositories
             var description = descriptionNode != null ? HtmlEntity.DeEntitize(descriptionNode.InnerText.Trim()) : "Description not available";
             var articleUrl = titleNode?.GetAttributeValue("href", "") ?? "";
             
-            var dateString = dateNode?.GetAttributeValue("datetime", "") ?? dateNode?.InnerText.Trim() ?? DateTime.UtcNow.ToString("o");
+            var dateString = dateNode?.GetAttributeValue("datetime", "") ?? 
+                             dateNode?.InnerText.Trim() ?? 
+                             DateTime.UtcNow.ToString("o");
+
+            _logger.LogInformation("Extracted date string: {DateString}", dateString);
 
             if (string.IsNullOrWhiteSpace(articleUrl))
             {

@@ -1,3 +1,6 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
 name: Build and deploy ASP.Net Core app to Azure Web App - mmt-ai-news
 
 on:
@@ -24,9 +27,6 @@ jobs:
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
-      - name: List files in publish directory
-        run: ls -R ${{env.DOTNET_ROOT}}/myapp
-
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
@@ -45,13 +45,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-          path: ./myapp
       
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@v3
         with:
           app-name: 'mmt-ai-news'
           slot-name: 'Production'
-          package: ./myapp
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D6E831BBB47B40C1BD6F392CB4A950C5 }}
+          package: .
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4A4E9F7293954590A638E7A2A7D06C6E }}

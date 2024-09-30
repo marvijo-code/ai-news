@@ -5,6 +5,8 @@ name: Build and deploy ASP.Net Core app to Azure Web App - mmt-ai-news
 
 on:
   push:
+    paths:
+      - '/AINewsAPI.Frontend'
     branches:
       - main
   workflow_dispatch:

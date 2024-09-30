@@ -52,5 +52,5 @@ jobs:
         with:
           app-name: 'mmt-ai-news'
           slot-name: 'Production'
-          package: .
+          package: ${{ runner.workspace }}/.net-app
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D6E831BBB47B40C1BD6F392CB4A950C5 }}

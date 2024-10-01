@@ -53,4 +53,4 @@ jobs:
           app-name: 'mmt-ai-news'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D6E831BBB47B40C1BD6F392CB4A950C5 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4A4E9F7293954590A638E7A2A7D06C6E }}

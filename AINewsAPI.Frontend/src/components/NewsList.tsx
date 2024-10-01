@@ -18,6 +18,7 @@ const NewsList: React.FC = () => {
     const fetchNews = async () => {
       try {
         const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+        console.log('VITE_API_BASE_URL:', apiBaseUrl);
         const response = await fetch(`${apiBaseUrl}/api/news`);
         if (!response.ok) {
           throw new Error('Failed to fetch news');

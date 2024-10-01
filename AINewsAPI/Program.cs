@@ -18,14 +18,11 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173")
+            policy.AllowAnyHeader()
                    .AllowAnyHeader()
                    .AllowAnyMethod();
         });
 });
-
-// Explicitly set URLs to listen on
-builder.WebHost.UseUrls("http://localhost:5000", "https://localhost:5001");
 
 var app = builder.Build();
 

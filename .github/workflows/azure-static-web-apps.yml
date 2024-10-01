@@ -3,7 +3,7 @@ name: Azure Static Web Apps CI/CD
 on:
   push:
     paths:
-      - '/AINewsAPI.Frontend/**'
+      - 'AINewsAPI.Frontend/**/**'
     branches:
       - main
   pull_request:

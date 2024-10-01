@@ -17,7 +17,8 @@ const NewsList: React.FC = () => {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const response = await fetch('/api/news');
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+        const response = await fetch(`${apiBaseUrl}/api/news`);
         if (!response.ok) {
           throw new Error('Failed to fetch news');
         }

@@ -18,7 +18,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
         policy =>
         {
-            policy.AllowAnyHeader()
+            policy.WithOrigins("https://ashy-stone-0dc005403.5.azurestaticapps.net", "https://localhost")
                    .AllowAnyHeader()
                    .AllowAnyMethod();
         });

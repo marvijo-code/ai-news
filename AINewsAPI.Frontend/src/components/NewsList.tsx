@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import NewsItem from './NewsItem';
 
+declare global {
+  interface ImportMeta {
+    env: {
+      VITE_API_BASE_URL: string;
+    };
+  }
+}
+
 interface NewsArticle {
   id: number;
   title: string;
